@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receta Segura</title>
+<style>
+  :root{--teal:#0f766e;--teal-d:#115e59;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--txt:#0f172a;--mut:#64748b;
+        --ok:#15803d;--okbg:#dcfce7;--bad:#b91c1c;--badbg:#fee2e2;--warn:#b45309;--warnbg:#fef3c7}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+  header{background:var(--teal);color:#fff;display:flex;align-items:center;gap:20px;padding:12px 24px;flex-wrap:wrap}
+  header h1{font-size:20px;margin:0;margin-right:auto} header .who{font-size:14px;opacity:.95}
+  nav button{background:transparent;color:#fff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:15px}
+  nav button.active{background:rgba(255,255,255,.2);font-weight:600}
+  main{max-width:1150px;margin:24px auto;padding:0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  h2{margin:0 0 14px;font-size:18px;color:var(--teal-d)} h3{margin:16px 0 8px;font-size:15px}
+  label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+  input,textarea{width:100%;padding:9px 11px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;background:#fff}
+  input:focus,textarea:focus{outline:2px solid #5eead4;border-color:var(--teal)}
+  textarea{resize:vertical;min-height:60px}
+  button.btn{background:var(--teal);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-size:15px;cursor:pointer;font-weight:600}
+  button.btn:hover{background:var(--teal-d)} button.btn:disabled{opacity:.6;cursor:wait}
+  button.sec{background:#fff;color:var(--teal-d);border:1px solid var(--teal)} button.sec:hover{background:#f0fdfa}
+  .small{padding:5px 10px;font-size:13px;font-weight:500}
+  .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:20px} @media(max-width:850px){.grid{grid-template-columns:1fr}}
+  .row2{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+  .med{display:grid;grid-template-columns:1.4fr 1fr 1.6fr auto;gap:6px;margin-bottom:6px}
+  .med button{background:#fff;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;color:var(--bad)}
+  .tabs{display:flex;gap:6px;margin-bottom:12px} .tabs button{flex:1;padding:9px;border:1px solid var(--line);background:#f8fafc;border-radius:8px;cursor:pointer}
+  .tabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .auth{max-width:440px;margin:0 auto}
+  .msg{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:14px} .msg.err{background:var(--badbg);color:var(--bad)} .msg.ok{background:var(--okbg);color:var(--ok)}
+  .rx{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+  .rx b{color:var(--teal-d)} .rx .meta{font-size:13px;color:var(--mut);margin:2px 0 8px}
+  .acts{display:flex;gap:6px;flex-wrap:wrap} a.btn{text-decoration:none;display:inline-block}
+  .demo{border-style:dashed;color:var(--warn);border-color:#d97706;background:#fffbeb}
+  .verdict{border-radius:12px;padding:18px;font-size:22px;font-weight:800;margin:6px 0 14px}
+  .verdict.ok{background:var(--okbg);color:var(--ok)} .verdict.bad{background:var(--badbg);color:var(--bad)} .verdict.warn{background:var(--warnbg);color:var(--warn)}
+  .verdict small{display:block;font-size:14px;font-weight:500;margin-top:4px}
+  .chk{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)} .chk .i{font-size:18px;width:24px}
+  .chk .t{font-weight:600;font-size:14px} .chk .d{font-size:13px;color:var(--mut)}
+  .i.ok{color:var(--ok)} .i.bad{color:var(--bad)} .i.na{color:var(--mut)}
+  code.h{display:block;font-size:12px;word-break:break-all;background:#f1f5f9;border-radius:6px;padding:6px 8px;margin-bottom:6px}
+  .hint{font-size:13px;color:var(--mut)} [hidden]{display:none!important}
+  table.rec{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px} table.rec td,table.rec th{border:1px solid var(--line);padding:6px 8px;text-align:left}
+</style>
+</head>
+<body>
+<header>
+  <h1>🩺 Receta Segura</h1>
+  <nav><button id="nav-doctor" class="active">Panel del médico</button><button id="nav-verify">Verificar receta</button></nav>
+  <div class="who" id="who" hidden></div>
+</header>
+<main>
+
+<!-- AUTENTICACIÓN -->
+<section id="view-auth">
+  <div class="card auth">
+    <div class="tabs"><button id="t-login" class="on">Iniciar sesión</button><button id="t-reg">Registrar médico</button></div>
+    <form id="f-login">
+      <label>Usuario</label><input id="l-user" autocomplete="username" required>
+      <label>Contraseña</label><input id="l-pass" type="password" autocomplete="current-password" required>
+      <p><button class="btn" style="width:100%">Entrar</button></p>
+    </form>
+    <form id="f-reg" hidden>
+      <label>Nombre completo</label><input id="r-nombre" required>
+      <label>Cédula profesional</label><input id="r-cedula" required>
+      <label>Usuario</label><input id="r-user" autocomplete="username" required>
+      <label>Contraseña (mínimo 8 caracteres)</label><input id="r-pass" type="password" autocomplete="new-password" required minlength="8">
+      <p class="hint">Se genera tu par de llaves Ed25519. Tu llave privada se guarda <b>cifrada con tu contraseña</b>: si la olvidas, no se puede recuperar.</p>
+      <p><button class="btn" style="width:100%">Crear cuenta</button></p>
+    </form>
+    <div id="auth-msg"></div>
+  </div>
+</section>
+
+<!-- PANEL MÉDICO -->
+<section id="view-doctor" hidden>
+  <div class="grid">
+    <div class="card">
+      <h2>Nueva receta</h2>
+      <form id="f-rx">
+        <div class="row2"><div><label>Paciente</label><input id="p-nombre" required maxlength="120"></div>
+                          <div><label>Edad</label><input id="p-edad" maxlength="10" inputmode="numeric"></div></div>
+        <label>Diagnóstico</label><input id="p-diag" maxlength="500">
+        <h3>Medicamentos</h3><div id="meds"></div>
+        <button type="button" class="btn sec small" id="add-med">+ Agregar medicamento</button>
+        <label>Observaciones</label><textarea id="p-obs" maxlength="1000"></textarea>
+        <p><button class="btn" id="btn-gen">📄 Generar receta PDF</button></p>
+      </form>
+      <div id="rx-msg"></div>
+    </div>
+    <div class="card">
+      <h2>Recetas emitidas</h2><div id="rx-list"><p class="hint">Cargando…</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- VERIFICAR -->
+<section id="view-verify" hidden>
+  <div class="grid">
+    <div class="card">
+      <h2>Verificar autenticidad de una receta</h2>
+      <p class="hint">Para farmacias o pacientes. No requiere iniciar sesión.</p>
+      <form id="f-ver">
+        <label>PDF de la receta</label><input type="file" id="v-file" accept="application/pdf">
+        <label>…o folio (verifica solo el registro guardado)</label><input id="v-folio" placeholder="RX-20260101-ABC123">
+        <p><button class="btn" id="btn-ver">🔍 Verificar</button></p>
+      </form>
+      <div id="ver-msg"></div>
+    </div>
+    <div class="card" id="ver-result"><h2>Resultado</h2><p class="hint">Aún no se ha verificado ninguna receta.</p></div>
+  </div>
+</section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let me = null, demo = false, tab = 'doctor';
+
+async function api(url, method = 'GET', body = null) {
+  const opt = {method, headers: {}};
+  if (body instanceof FormData) opt.body = body;
+  else if (body) { opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body); }
+  const r = await fetch(url, opt);
+  let data = null; try { data = await r.json(); } catch (e) {}
+  if (!r.ok) { const err = new Error((data && data.error) || 'Error ' + r.status); err.status = r.status; throw err; }
+  return data;
+}
+function note(el, text, kind) { el.innerHTML = text ? `<div class="msg ${kind}">${text}</div>` : ''; }
+
+function render() {
+  $('#nav-doctor').classList.toggle('active', tab === 'doctor');
+  $('#nav-verify').classList.toggle('active', tab === 'verify');
+  $('#view-auth').hidden = !(tab === 'doctor' && !me);
+  $('#view-doctor').hidden = !(tab === 'doctor' && me);
+  $('#view-verify').hidden = tab !== 'verify';
+  const w = $('#who');
+  if (me) { w.hidden = false; w.innerHTML = `Dr(a). ${esc(me.nombre)} · cédula ${esc(me.cedula)} <button class="btn sec small" id="logout" style="margin-left:8px">Cerrar sesión</button>`;
+            $('#logout').onclick = logout; } else w.hidden = true;
+}
+$('#nav-doctor').onclick = () => { tab = 'doctor'; render(); if (me) loadList(); };
+$('#nav-verify').onclick = () => { tab = 'verify'; render(); };
+
+/* ---------- auth ---------- */
+$('#t-login').onclick = () => { $('#f-login').hidden = false; $('#f-reg').hidden = true; $('#t-login').className = 'on'; $('#t-reg').className = ''; note($('#auth-msg'), ''); };
+$('#t-reg').onclick = () => { $('#f-login').hidden = true; $('#f-reg').hidden = false; $('#t-reg').className = 'on'; $('#t-login').className = ''; note($('#auth-msg'), ''); };
+$('#f-login').onsubmit = async e => {
+  e.preventDefault();
+  try { const r = await api('/api/login', 'POST', {username: $('#l-user').value, password: $('#l-pass').value});
+        me = r.doctor; demo = r.demo; $('#l-pass').value = ''; render(); loadList(); }
+  catch (err) { note($('#auth-msg'), esc(err.message), 'err'); }
+};
+$('#f-reg').onsubmit = async e => {
+  e.preventDefault();
+  try { await api('/api/register', 'POST', {nombre: $('#r-nombre').value, cedula: $('#r-cedula').value, username: $('#r-user').value, password: $('#r-pass').value});
+        $('#r-pass').value = ''; $('#t-login').click(); note($('#auth-msg'), 'Cuenta creada. Ya puedes iniciar sesión.', 'ok'); }
+  catch (err) { note($('#auth-msg'), esc(err.message), 'err'); }
+};
+async function logout() { await api('/api/logout', 'POST'); me = null; render(); }
+
+/* ---------- nueva receta ---------- */
+function addMed(v = {}) {
+  const d = document.createElement('div'); d.className = 'med';
+  d.innerHTML = `<input placeholder="Medicamento" class="m-n" maxlength="150"><input placeholder="Dosis (ej. 500 mg)" class="m-d" maxlength="100">
+                 <input placeholder="Indicaciones" class="m-i" maxlength="300"><button type="button" title="Quitar">✕</button>`;
+  d.querySelector('button').onclick = () => { if ($('#meds').children.length > 1) d.remove(); };
+  $('#meds').appendChild(d);
+}
+$('#add-med').onclick = () => addMed();
+addMed();
+
+$('#f-rx').onsubmit = async e => {
+  e.preventDefault();
+  const meds = [...document.querySelectorAll('#meds .med')].map(r => ({nombre: r.querySelector('.m-n').value, dosis: r.querySelector('.m-d').value, indicaciones: r.querySelector('.m-i').value}));
+  const btn = $('#btn-gen'); btn.disabled = true;
+  try {
+    const r = await api('/api/recetas', 'POST', {paciente: $('#p-nombre').value, edad: $('#p-edad').value, diagnostico: $('#p-diag').value, medicamentos: meds, observaciones: $('#p-obs').value});
+    note($('#rx-msg'), `✔ Receta <b>${esc(r.folio)}</b> generada y firmada.<br>
+      <a class="btn sec small" style="margin-top:8px" href="/api/recetas/${encodeURIComponent(r.folio)}/pdf">⬇ Descargar PDF</a>`, 'ok');
+    $('#f-rx').reset(); $('#meds').innerHTML = ''; addMed(); loadList();
+  } catch (err) { if (err.status === 401) { me = null; render(); } note($('#rx-msg'), esc(err.message), 'err'); }
+  btn.disabled = false;
+};
+
+async function loadList() {
+  const box = $('#rx-list');
+  try {
+    const list = await api('/api/recetas');
+    if (!list.length) { box.innerHTML = '<p class="hint">Aún no has emitido recetas.</p>'; return; }
+    box.innerHTML = list.map(r => `<div class="rx"><b>${esc(r.folio)}</b><div class="meta">${esc(r.fecha)} · Paciente: ${esc(r.paciente)}</div>
+      <div class="acts"><a class="btn sec small" href="/api/recetas/${encodeURIComponent(r.folio)}/pdf">⬇ PDF</a>
+      <button class="btn sec small" data-verify="${esc(r.folio)}">Verificar registro</button>
+      ${demo ? `<a class="btn sec small demo" href="/api/demo/pdf-alterado/${encodeURIComponent(r.folio)}" title="Descarga una copia con la dosis cambiada">⚠ PDF alterado</a>
+                <button class="btn sec small demo" data-tamper="${esc(r.folio)}" title="Corrompe el registro cifrado en la BD">⚠ Alterar BD</button>` : ''}</div></div>`).join('');
+    box.querySelectorAll('[data-verify]').forEach(b => b.onclick = () => { tab = 'verify'; render(); $('#v-folio').value = b.dataset.verify; $('#v-file').value = ''; $('#f-ver').requestSubmit(); });
+    box.querySelectorAll('[data-tamper]').forEach(b => b.onclick = async () => {
+      if (!confirm('Demostración: se corromperá el registro cifrado de ' + b.dataset.tamper + ' en la base de datos. ¿Continuar?')) return;
+      await api('/api/demo/alterar-bd/' + encodeURIComponent(b.dataset.tamper), 'POST'); loadList(); });
+  } catch (err) { if (err.status === 401) { me = null; render(); } }
+}
+
+/* ---------- verificar ---------- */
+$('#f-ver').onsubmit = async e => {
+  e.preventDefault();
+  const fd = new FormData(); const f = $('#v-file').files[0];
+  if (f) fd.append('pdf', f); fd.append('folio', $('#v-folio').value);
+  const btn = $('#btn-ver'); btn.disabled = true; note($('#ver-msg'), '');
+  try { renderResult(await api('/api/verificar', 'POST', fd)); }
+  catch (err) { note($('#ver-msg'), esc(err.message), 'err'); }
+  btn.disabled = false;
+};
+
+function renderResult(r) {
+  const cls = {VALIDA: 'ok', ALTERADA: 'bad', NO_RECONOCIDA: 'warn'}[r.verdict];
+  const ttl = {VALIDA: '✔ RECETA VÁLIDA', ALTERADA: '✖ RECETA ALTERADA', NO_RECONOCIDA: '? RECETA NO RECONOCIDA'}[r.verdict];
+  const sub = r.resumen || '';
+  const icon = c => c.ok === true ? '<span class="i ok">✔</span>' : c.ok === false ? '<span class="i bad">✖</span>' : '<span class="i na">–</span>';
+  let rec = '';
+  if (r.record) { const d = r.record;
+    rec = `<h3>Datos originales de la receta <span class="hint">(tal como los registró el médico)</span></h3>
+      <p><b>Folio:</b> ${esc(d.folio)} · ${esc(d.fecha)}<br><b>Médico:</b> ${esc(d.medico.nombre)} (cédula ${esc(d.medico.cedula)})<br>
+      <b>Paciente:</b> ${esc(d.paciente.nombre)} ${d.paciente.edad ? '· ' + esc(d.paciente.edad) + ' años' : ''}<br><b>Diagnóstico:</b> ${esc(d.diagnostico) || '—'}</p>
+      <table class="rec"><tr><th>Medicamento</th><th>Dosis</th><th>Indicaciones</th></tr>${d.medicamentos.map(m => `<tr><td>${esc(m.nombre)}</td><td>${esc(m.dosis)}</td><td>${esc(m.indicaciones)}</td></tr>`).join('')}</table>
+      <p><b>Observaciones:</b> ${esc(d.observaciones) || '—'}</p>`; }
+  $('#ver-result').innerHTML = `<h2>Resultado</h2><div class="verdict ${cls}">${ttl}<small>${sub}</small></div>
+    ${r.folio ? `<p><b>Folio:</b> ${esc(r.folio)}</p>` : ''}
+    ${r.checks.map(c => `<div class="chk">${icon(c)}<div><div class="t">${esc(c.titulo)}</div><div class="d">${esc(c.detalle)}</div></div></div>`).join('')}
+    ${rec}`;
+}
+
+(async () => { try { const r = await api('/api/me'); me = r.doctor; demo = r.demo; } catch (e) {} render(); if (me) loadList(); })();
+</script>
+</body>
+</html>
